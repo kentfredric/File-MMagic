@@ -1,3 +1,25 @@
+2000-02-29  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.00.
+
+	* MMagic.pm (checktype_filehandle): Fixed to work multiple subtests.
+
+2000-02-28  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Changed URI for Namzu Project.
+	(contributed by Satoru Takabayasi)
+	Fixed to work multiple subtests.
+	Changed some entries for MicroSoft Office files.
+	Fixed addFileExts() bug.
+	Changed to check file-extends for case insensitive.
+
+	* perl-File-MMagic.spec: Created.
+	(contributed by Ryuji Abe)
+
+2000-02-24  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Changed to work subtest matching.
+
 2000-02-10  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Version 0.20.

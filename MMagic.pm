@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.24 2000/02/10 02:26:03 knok Exp $
+# $Id: MMagic.pm,v 1.30 2000/02/29 05:21:33 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -275,7 +275,7 @@ BEGIN {
 	    f => "\f",
 	    v => "\v" );
 
-$VERSION = "0.20";
+$VERSION = "0.20.6";
 undef $dataLoc;
 }
 
@@ -307,13 +307,6 @@ sub new {
 # different texts.  This isn't rocket science.  It's prone to
 # failure so these checks are only a last resort.
     $self->{SPECIALS} = {
-#		 "text/plain; x-type=rfc" => [
-#			      "^Network Working Group",
-#			      "^Request for Comments:",
-#			      "^Obsoletes:",
-#			      "^Category:",
-#			      "^Updates:",
-#				   ],
 		 "message/rfc822" => [ "^Received:",   
 			     "^>From ",       
 			     "^From ",       
@@ -352,9 +345,6 @@ sub new {
 	     'txt$' => 'text/plain',
 	     'html$' => 'text/html',
 	     'htm$' => 'text/html',
-#	     '^rfc\d+\.txt$' => 'text/plain; x-type=rfc',
-#	     '^draft-(\w*-)+-\d+\.txt$' => 'text/plain; x-type=internet-draft', #' (for cperl-mode)
-#	     '^fyi\d+\.txt$' => 'text/plain; x-type=fyi',
     };
     bless($self);
     return $self;
@@ -371,7 +361,7 @@ sub addFileExts {
     my $self = shift;
     my $filepat = shift;
     my $mtype = shift;
-    $self->{FILEXTS}->{"$filepat"} = $mtype;
+    $self->{FILEEXTS}->{"$filepat"} = $mtype;
     return $self;
 }
 
@@ -474,9 +464,11 @@ sub checktype_filehandle {
 	# check if the m-th magic entry matches
 	# if it does, then $desc will contain an updated description
 	if (magicMatch($self->{magic}->[$m],\$desc,$fh)) {
-	    $matchFound = 1;
-	    $mtype = $desc;
-	    last;
+	    if (defined $desc && $desc ne '') {
+		$matchFound = 1;
+		$mtype = $desc;
+		last;
+	    }
 	}
 
 	# read another entry from the magic file if we've exhausted
@@ -536,8 +528,10 @@ sub checktype_magic {
 	# check if the m-th magic entry matches
 	# if it does, then $desc will contain an updated description
 	if (magicMatchStr($self->{magic}->[$m],\$desc,$data)) {
-	    $mtype = $desc;
-	    last;
+	    if (defined $desc && $desc ne '') {
+		$mtype = $desc;
+		last;
+	    }
 	}
 
 	# read another entry from the magic file if we've exhausted
@@ -597,7 +591,7 @@ sub checktype_byfilename {
 
     $fname =~ s/^.*\///;
     for my $regex (keys %{$self->{FILEEXTS}}) {
-	if ($fname =~ /$regex/) {
+	if ($fname =~ /$regex/i) {
 	    if ((defined $type && $type !~ /;/) || (! defined $type)) {
 		$type = $self->{FILEEXTS}->{$regex}; # has no x-type param
 	    }
@@ -617,13 +611,14 @@ sub check_binary {
 }
 
 
-#if ($checkMagic) {
-#    # read the whole file if we haven't already
-#    while (!$$MF[0]->eof()) {
-#	readMagicEntry(\@magic,$MF);
-#    }
-#    dumpMagic(\@magic);
-#}
+sub check_magic {
+    my $self = shift @_;
+    # read the whole file if we haven't already
+    while (!$self->{MF}->[0]->eof()) {
+	readMagicEntry($self->{magic}, $self->{MF});
+    }
+    dumpMagic($self->{magic});
+}
 
 ####### SUBROUTINES ###########
 
@@ -785,6 +780,7 @@ sub magicMatch {
 
 sub magicMatchStr {
     my ($item, $p_desc, $str) = @_;
+    my $origstr = $str;
 
     # delayed evaluation.  if this is our first time considering
     # this item, then parse out its structure.  @$item is just the
@@ -826,7 +822,7 @@ sub magicMatchStr {
     }
     else {
 	# absolute offset
-	# nothing to do.
+	$str = substr($str, $offset);
     }
 
     if ($type eq 'string') {
@@ -925,9 +921,10 @@ sub magicMatchStr {
 	}
 
 	my $subtest;
-#	foreach $subtest (@$subtests) {
-#	    magicMatch($subtest,$p_desc,$fh);
-#	}
+	foreach $subtest (@$subtests) {
+	    # finish evaluation when matched.
+	    magicMatchStr($subtest,$p_desc,$origstr);
+	}
 
 	return 1;
     }
@@ -1181,6 +1178,8 @@ sub readMagicLine {
 # in decimal.
 sub dumpMagic {
     my ($magic,$depth) = @_;
+    $magic = [] unless defined $magic;
+    $depth = 0 unless defined $depth;
 
     my $entry;
     foreach $entry (@$magic) {
@@ -1232,7 +1231,7 @@ __DATA__
 #
 
 # The following paramaters are created for Namazu.
-# <http://openlab.ring.gr.jp/namazu/>
+# <http://www.namazu.org/>
 #
 # 1999/08/13
 #0	string		\<!--\ MHonArc		text/html; x-type=mhonarc
@@ -1619,7 +1618,11 @@ __DATA__
 
 0	string		\320\317\021\340\241\261\032\341
 >48	byte		0x1B		application/excel
+
+0	string		\320\317\021\340\241\261\032\341
 >64 byte		0x00		application/powerpoint
+
+0	string		\320\317\021\340\241\261\032\341
 >64 byte		0x01		application/msword
 
 #

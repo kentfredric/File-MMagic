@@ -1,5 +1,7 @@
-%define	ver	0.19
-%define rel	1
+# Note that this is NOT a relocatable package
+%define	ver	0.20
+%define  RELEASE 1
+%define  rel     %{?CUSTOM_RELEASE} %{!?CUSTOM_RELEASE:%RELEASE}
 
 Summary: file command like perl5 module
 Name: perl-File-MMagic
@@ -40,11 +42,17 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-/usr/lib/perl5/site_perl/File/MMagic.pm
-/usr/lib/perl5/site_perl/*-linux/auto/File/MMagic
+/usr/lib/perl5/site_perl/*/File/MMagic.pm
+/usr/lib/perl5/site_perl/*/*-linux/auto/File/MMagic
 /usr/lib/perl5/man/man3/File::MMagic.3
 
 %changelog
+* Fri Dec 31 1999 Ryuji Abe <raeva@t3.rim.or.jp>
+- Installed correctly directories.
+
+* Sat Dec 11 1999 Ryuji Abe <raeva@t3.rim.or.jp>
+- Rebuild for RHL-6.1.
+
 * Thu Dec 02 1999 Ryuji Abe <raeva@t3.rim.or.jp>
 - Specified Obsoletes: File-MMagic.
 
