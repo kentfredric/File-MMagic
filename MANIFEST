@@ -5,4 +5,6 @@ COPYING
 README.ja
 README.en
 Makefile.PL
-perl-File-MMagic.spec
+t/01-selfcheck.t
+t/02-extmagic.t
+

@@ -1,3 +1,54 @@
+2002-02-22  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.15.
+
+	* MMagic.pm: Added new funtions removeSpecials and
+	removeExts.
+	(Patch contributed by Hilko Bengen, thank you.)
+
+2001-11-13  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Added binmode() in some file handles.
+	(Reported by Antony O'Sullivan, thanks.)
+
+2001-08-08  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* README.en : Added the notice section.
+
+	* README.ja : Ditto.
+
+2001-07-17  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MANIFEST: Added t/02-extmagic.t for distribution.
+
+	* t/02-extmagic.t: Added a new file for testing.
+
+	* MANIFEST: Added t/01-selfcheck.t for distribution.
+
+	* t/01-selfcheck.t: Added a new file for testing.
+
+2001-07-05  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm (checktype_filename): Added workaround for MSWin32
+	symlink handling probrem on ActivePerl build 626.
+	(Reported by Thomas Yengst, thank you.)
+
+	* perl-File-MMagic.spec: Removed.
+
+2001-06-20  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Added some archives entry (arc, zoo, arj, rar).
+
+2001-06-19  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Added ms-tnef entry.
+
+	* Version 1.14.
+
+2001-06-18  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Added more comment on pod.
+
 2001-06-15  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* MMagic.pm (readMagicEntry): Fixed warning output probrem

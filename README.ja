@@ -1,6 +1,6 @@
 File::MMagic
 
-Copyright(C) 1999 NOKUBI Takatsugu <knok@daionet.gr.jp>
+Copyright(C) 1999-2001 NOKUBI Takatsugu <knok@daionet.gr.jp>
 
 1. はじめに
 
@@ -23,7 +23,7 @@ Copyright(C) 1999 NOKUBI Takatsugu <knok@daionet.gr.jp>
 
 4. 著作権表示
 
-Copyright(C) 1999 NOKUBI Takatsugu <knok@daionet.gr.jp>
+Copyright(C) 1999-2001 NOKUBI Takatsugu <knok@daionet.gr.jp>
 
 * Copyright (c) Ian F. Darwin, 1987.
 * Written by Ian F. Darwin.
@@ -42,3 +42,14 @@ The Unix Reconstruction Project
 <http://language.perl.com/ppt/index.html>
 The Apache HTTP server project
 <http://www.apache.org/>
+
+5. 注意点
+
+このモジュールを mod_perl で利用するときは、MMagic.pm から magic entry 部分
+を抜き出し、それを magic file として陽に指定するようにして下さい。
+モジュールに組み込まれている magic entry は mod_perl では正しく動作しません。
+
+例:
+
+my $magic = File::MMagic::new('/etc/mime-magic');
+   # /etc/mime-magic is separated file from MMagic.pm

@@ -1,11 +1,11 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.45 2001/06/15 08:08:10 knok Exp $
+# $Id: MMagic.pm,v 1.52 2002/02/22 05:07:42 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
 #    <http://language.perl.com/ppt/index.html>
-# Copyright 1999, 2000 NOKUBI Takatsugu <knok@daionet.gr.jp>.
+# Copyright 1999,2000,2001,2002 NOKUBI Takatsugu <knok@daionet.gr.jp>.
 #
 # This product includes software developed by the Apache Group
 # for use in the Apache HTTP server project (http://www.apache.org/).
@@ -114,6 +114,7 @@ File::MMagic - Guess file type
 
   $mm = new File::MMagic; # use internal magic file
   # $mm = File::MMagic::new('/etc/magic'); # use external magic file
+  # $mm = File::MMagic::new('/usr/share/etc/magic'); # if you use Debian
   $res = $mm->checktype_filename("/somewhere/unknown/file");
 
   $fh = new FileHandle "< /somewhere/unknown/file2";
@@ -131,6 +132,61 @@ and/or filehandle.
 
 checktype_filename(), checktype_filehandle() and checktype_contents
 returns string contains file type with MIME mediatype format.
+
+=head1 METHODS
+
+=over 4
+
+=item File::MMagic->new()
+
+=item File::MMagic->new( $filename )
+
+Initializes the module. If no filename is given, the magic numbers
+stored in File::MMagic are used.
+
+=item $mm->addSpecials
+
+If a filetype cannot be determined by magic numbers, extra checks are
+done based on extra regular expressions which can be defined here. The
+first argument should be the filetype, the remaining arguments should
+be one or more regular expressions.
+
+By default, checks are done for message/news, message/rfc822,
+text/html, text/x-roff.
+
+=item $mm->removeSpecials
+
+Removes special regular expressions. Specify one or more filetypes. If
+no filetypes are specified, all special regexps are removed.
+
+Returns a hash containing the removed entries.
+
+=item $mm->addFileExts
+
+If a filetype cannot be determined by magic numbers, extra checks can
+be done based on the file extension (actually, a regexp). Two
+arguments should be geiven: the filename pattern and the corresponding
+filetype.
+
+By default, checks are done for application/x-compress,
+application/x-bzip2, application/x-gzip, text/html, text/plain
+
+=item $mm->removeFileExts
+
+Removes filename pattern checks. Specify one or more patterns. If no
+pattern is specified, all are removed.
+
+Returns a hash containing the removed entries.
+
+=item $mm->addMagicEntry
+
+=item $mm->readMagicHandle
+
+=item $mm->checktype_filename
+
+=item $mm->checktype_magic
+
+=item $mm->checktype_contents
 
 =head1 COPYRIGHT
 
@@ -274,7 +330,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.13";
+$VERSION = "1.15";
 $allowEightbit = 1;
 undef $dataLoc;
 }
@@ -306,6 +362,8 @@ sub new {
 # from the BSD names.h, some tokens for hard-coded checks of
 # different texts.  This isn't rocket science.  It's prone to
 # failure so these checks are only a last resort.
+
+# removSpecials() can be used to remove those afterwards.
     $self->{SPECIALS} = {
 		 "message/rfc822" => [ "^Received:",   
 			     "^>From ",       
@@ -358,12 +416,34 @@ sub addSpecials {
     return $self;
 }
 
+sub removeSpecials {
+    my $self = shift;
+    # Remove all keys if no arguments given
+    my @mtypes = (@_ or keys %{$self->{SPECIALS}});
+    my %returnmtypes;
+    foreach my $mtype (@mtypes) {
+      $returnmtypes{"$mtype"} = delete $self->{SPECIALS}->{"$mtype"};
+    }
+    return %returnmtypes;
+}
+
 sub addFileExts {
     my $self = shift;
     my $filepat = shift;
     my $mtype = shift;
     $self->{FILEEXTS}->{"$filepat"} = $mtype;
     return $self;
+}
+
+sub removeFileExts {
+    my $self = shift;
+    # Remove all keys if no arguments given
+    my @filepats = (@_ or keys %{$self->{FILEEXTS}}); 
+    my %returnfilepats;
+    foreach my $filepat (@filepats) {
+      $returnfilepats{"$filepat"} = delete $self->{FILEEXTS}->{"$filepat"};
+    }
+    return %returnfilepats;
 }
 
 sub addMagicEntry {
@@ -406,9 +486,13 @@ sub checktype_filename {
     }
 
     # 1) check for various special files first
-    if ($followLinks) { stat($file); } else { lstat($file); }
+    if ($^O eq 'MSWin32') {
+	stat($file);
+    } else {
+	if ($followLinks) { stat($file); } else { lstat($file); }
+    }
     if (! -f _  or -z _) {
-	if ( !$followLinks && -l _ ) { 
+	if ( $^O ne 'MSWin32' && !$followLinks && -l _ ) { 
 	    $desc .= " symbolic link to ".readlink($file); 
 	}
 	elsif ( -d _ ) { $desc .= " directory"; }
@@ -427,6 +511,8 @@ sub checktype_filename {
 
 #    $fh = new FileHandle "< $file" or die "$F: $file: $!\n" ;
     $fh = new FileHandle "< $file" or return "x-system/x-error; $file: $!\n" ;
+
+    binmode($fh); # for MSWin32
 
     # 2) check for script
     if (-x $file && -T _) {
@@ -456,6 +542,8 @@ sub checktype_filehandle {
     my $self = shift;
     my ($fh, $desc) = @_;
     my $mtype;
+
+    binmode($fh); # for MSWin32 architecture.
 
     # 3) iterate over each magic entry.
     my $matchFound = 0;
@@ -1521,6 +1609,7 @@ __DATA__
 0	string		Forward\ to 	message/rfc822
 0	string		Pipe\ to 	message/rfc822
 0	string		Return-Path:	message/rfc822
+0	string		Received:	message/rfc822
 0	string		Path:		message/news
 0	string		Xref:		message/news
 0	string		From:		message/rfc822
@@ -1717,3 +1806,19 @@ __DATA__
 257		string	ustar\0			application/x-tar
 257		string	ustar\040\040\0	application/x-gtar
 
+# TNEF file
+0		lelong	0x223E9F78	application/ms-tnef
+
+# ARC archiver
+0	lelong&0x8080ffff	0x0000081a	application/x-arc
+0	lelong&0x8080ffff	0x0000091a	application/x-arc
+0	lelong&0x8080ffff	0x0000021a	application/x-arc
+0	lelong&0x8080ffff	0x0000031a	application/x-arc
+0	lelong&0x8080ffff	0x0000041a	application/x-arc
+0	lelong&0x8080ffff	0x0000061a	application/x-arc
+# Zoo archiver
+20	lelong		0xfdc4a7dc	application/x-zoo
+# ARJ archiver (jason@jarthur.Claremont.EDU)
+0	leshort		0xea60		application/x-arj
+# RAR archiver (Greg Roelofs, newt@uchicago.edu)
+0	string		Rar!		application/x-rar
