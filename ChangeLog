@@ -1,3 +1,11 @@
+2001-06-15  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm (readMagicEntry): Fixed warning output probrem
+	on large magic database.
+	(Reported and patched by John R Lenton. Thanks.)
+
+	* Version 1.13.
+
 2001-02-09  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* MMagic.pm (checktype_data): Changed evaluation sequence of

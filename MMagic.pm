@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.44 2001/02/09 01:09:12 knok Exp $
+# $Id: MMagic.pm,v 1.45 2001/06/15 08:08:10 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -274,7 +274,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.12";
+$VERSION = "1.13";
 $allowEightbit = 1;
 undef $dataLoc;
 }
@@ -980,7 +980,7 @@ sub readMagicEntry {
 
 	    # call ourselves recursively.  will return the depth
 	    # of the entry following the nested group.
-	    if (readMagicEntry($entry->[2], $MF, $depth+1) < $depth ||
+	    if ((readMagicEntry($entry->[2], $MF, $depth+1) || 0) < $depth ||
 		$$MF[0]->eof())
 	    {
 		return;
