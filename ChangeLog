@@ -1,3 +1,9 @@
+2003-07-31  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.20.
+
+	* MMagic.pm (addMagicEntry): Added a capability of adding sub entry.
+
 2003-05-08  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Version 1.19.

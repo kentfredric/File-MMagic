@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.57 2003/05/08 13:36:11 knok Exp $
+# $Id: MMagic.pm,v 1.58 2003/07/31 12:53:13 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -173,12 +173,21 @@ application/x-bzip2, application/x-gzip, text/html, text/plain
 
 =item $mm->removeFileExts
 
-Removes filename pattern checks. Specify one or more patterns. If no
+Remove filename pattern checks. Specify one or more patterns. If no
 pattern is specified, all are removed.
 
 Returns a hash containing the removed entries.
 
 =item $mm->addMagicEntry
+
+Add a new magic entry in the object. The format is same as magic(5) file.
+
+  Ex.
+  # Add a entry
+  $mm->addMagicEntry("0\tstring\tabc\ttext/abc");
+  # Add a entry with a sub entry
+  $mm->addMagicEntry("0\tstring\tdef\t");
+  $mm->addMagicEntry(">10\tstring\tghi\ttext/ghi");
 
 =item $mm->readMagicHandle
 
@@ -330,7 +339,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.19";
+$VERSION = "1.20";
 $allowEightbit = 1;
 }
 
@@ -449,6 +458,19 @@ sub removeFileExts {
 sub addMagicEntry {
     my $self = shift;
     my $entry = shift;
+    if ($entry =~ /^>/) {
+	$entry =~ s/^>//;
+	my $depth = 1;
+	my $entref = ${${$self->{magic}}[0]}[2];
+	while ($entry =~ /^>/) {
+	    $entry =~ s/^>//;
+	    $depth ++;
+	    $entref = ${${$entref}[0]}[2];
+	}
+	$entry = '>' x $depth . $entry;
+	unshift @{$entref}, [$entry, -1, []];
+	return $self;
+    }
     unshift @{$self->{magic}}, [$entry, -1, []];
     return $self;
 }
