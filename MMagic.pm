@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.33 2000/03/03 08:15:58 knok Exp $
+# $Id: MMagic.pm,v 1.35 2000/03/29 07:47:36 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -272,10 +272,9 @@ BEGIN {
 	    r => "\r",
 	    b => "\b",
 	    t => "\t",
-	    f => "\f",
-	    v => "\v" );
+	    f => "\f");
 
-$VERSION = "1.02";
+$VERSION = "1.06";
 undef $dataLoc;
 }
 
@@ -368,7 +367,7 @@ sub addFileExts {
 sub addMagicEntry {
     my $self = shift;
     my $entry = shift;
-    push @{$self->{magic}}, [$entry, -1, []];
+    unshift @{$self->{magic}}, [$entry, -1, []];
     return $self;
 }
 
@@ -1320,7 +1319,8 @@ __DATA__
 # Microsoft WAVE format (*.wav)
 # [GRR 950115:  probably all of the shorts and longs should be leshort/lelong]
 #					Microsoft RIFF
-0	string		RIFF		audio/x-msvideo	
+#0	string		RIFF		audio/x-msvideo	
+0	string		RIFF
 #					- WAVE format
 >8	string		WAVE		audio/x-wav	
 
@@ -1567,8 +1567,9 @@ __DATA__
 #>34	string		>\0		(%s)
 
 # Texinfo and GNU Info, from Daniel Quinlan (quinlan@yggdrasil.com)
-#0	string		\\input\ texinfo	Texinfo source text
-#0	string		This\ is\ Info\ file	GNU Info text
+0	string		\\input\ texinfo		text/x-texinfo
+0	string		This\ is\ Info\ file	text/x-info
+0	string		This\ is\ 				text/x-info
 
 # correct TeX magic for Linux (and maybe more)
 # from Peter Tobias (tobias@server.et-inf.fho-emden.de)
@@ -1605,10 +1606,15 @@ __DATA__
 # Reversed-engineered JS Ichitaro magic numbers
 #
 
-0	string		\104\117\0\103
->43	 byte		0x14		application/ichitaro4
->43	 byte		0x15		application/ichitaro5
->43	 byte		0x16		application/ichitaro6
+0	string		DOC
+>43	byte		0x14		application/ichitaro4
+>144	string	JDASH		application/ichitaro4
+
+0	string		DOC
+>43	byte		0x15		application/ichitaro5
+
+0	string		DOC
+>43	byte		0x16		application/ichitaro6
 
 #------------------------------------------------------------------------------
 # office97: file(1) magic for MicroSoft Office files
@@ -1617,14 +1623,30 @@ __DATA__
 # Reversed-engineered MS Office magic numbers
 #
 
-0	string		\320\317\021\340\241\261\032\341
->48	byte		0x1B		application/excel
+#0       string          \320\317\021\340\241\261\032\341
+#>48     byte            0x1B            application/excel
+
+2080	string	Microsoft\ Excel\ 5.0\ Worksheet	application/excel
+2114	string	Biff5								application/excel
+
+0       string	\224\246\056	application/msword
+
+0		belong	0x31be0000		application/msword
+
+0		string	PO^Q`			application/msword
 
 0	string		\320\317\021\340\241\261\032\341
->64 byte		0x00		application/powerpoint
+>546	string	bjbj			application/msword
+>546	string	jbjb			application/msword
 
-0	string		\320\317\021\340\241\261\032\341
->64 byte		0x01		application/msword
+512		string	R\0o\0o\0t\0\ \0E\0n\0t\0r\0y	application/msword
+
+2080	string	Microsoft\ Word\ 6.0\ Document	application/msword
+2080	string	Documento\ Microsoft\ Word\ 6	application/msword
+2112	string	MSWordDoc						application/msword
+
+#0	string		\320\317\021\340\241\261\032\341	application/powerpoint
+0	string		\320\317\021\340\241\261\032\341	application/msword
 
 #
 # MPEG audio/video format
@@ -1643,3 +1665,42 @@ __DATA__
 0	string		MOVI		video/quicktime
 4	string		moov		video/quicktime
 4	string		mdat		video/quicktime
+
+# WinNT/WinCE PE files (Warner Losh, imp@village.org)
+#
+128		string	PE\000\000		application/octet-stream
+0		string	PE\000\000		application/octet-stream
+
+# miscellaneous formats
+0		string	LZ				application/octet-stream
+
+# .EXE formats (Greg Roelofs, newt@uchicago.edu)
+#
+0		string	MZ
+>24		string	@				application/octet-stream
+
+0		string	MZ
+>30		string	Copyright\ 1989-1990\ PKWARE\ Inc.	application/x-zip
+
+0		string	MZ
+>30		string	PKLITE\ Copr.	application/x-zip
+
+0		string	MZ
+>36		string	LHa's\ SFX		application/x-lha
+
+0		string	MZ
+>36		string	LHA's\ SFX		application/x-lha
+
+0		string	MZ				application/octet-stream
+
+# LHA archiver
+2		string	-lh
+>6		string	-				application/x-lha
+
+# ZIP archiver
+0		string	PK				application/x-zip
+
+# POSIX tar archives
+257		string	ustar\0			application/x-tar
+257		string	ustar\040\040\0	application/x-gtar
+

@@ -1,3 +1,18 @@
+2000-03-29  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Removed "\v" from %ESC.
+
+2000-03-23  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Added some entries.
+	(committed by kenzo-. Thanks.)
+
+2000-03-08  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.03.
+
+	* MMagic.pm (addMagicEntry): Changed priority for added entry.
+
 2000-03-03  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Version 1.02.
