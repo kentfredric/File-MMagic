@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.35 2000/03/29 07:47:36 knok Exp $
+# $Id: MMagic.pm,v 1.36 2000/08/09 08:12:08 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -274,7 +274,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.06";
+$VERSION = "1.07";
 undef $dataLoc;
 }
 
@@ -339,11 +339,12 @@ sub new {
 		};
 
     $self->{FILEEXTS} = {
-	     'gz$' => 'application/x-gzip',
-	     'Z$' => 'application/x-compress',
-	     'txt$' => 'text/plain',
-	     'html$' => 'text/html',
-	     'htm$' => 'text/html',
+	     '\.gz$' => 'application/x-gzip',
+	     '\.bz2$' => 'application/x-bzip2',
+	     '\.Z$' => 'application/x-compress',
+	     '\.txt$' => 'text/plain',
+	     '\.html$' => 'text/html',
+	     '\.htm$' => 'text/html',
     };
     bless($self);
     return $self;

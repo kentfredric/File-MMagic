@@ -1,3 +1,9 @@
+2000-08-09  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm (new): Added '\.' in $self->{FILEEXTS}.
+	(reported by Yasunori Tada. Thanks.)
+	Version 1.07.
+
 2000-03-29  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* MMagic.pm: Removed "\v" from %ESC.
