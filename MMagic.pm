@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.59 2003/11/21 02:25:45 knok Exp $
+# $Id: MMagic.pm,v 1.60 2004/03/15 08:23:04 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -339,7 +339,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.21";
+$VERSION = "1.22";
 $allowEightbit = 1;
 }
 
@@ -797,7 +797,7 @@ sub magicMatch {
 	$fh->seek($offset,0) or return;
     }
 
-    if ($type eq 'string') {
+    if ($type =~ /^string/) {
 	# read the length of the match string unless the
 	# comparison is '>' ($numbytes == 0), in which case 
 	# read to the next null or "\n". (that's what BSD's file does)
@@ -953,7 +953,7 @@ sub magicMatchStr {
 	$str = substr($str, $offset);
     }
 
-    if ($type eq 'string') {
+    if ($type =~ /^string/) {
 	# read the length of the match string unless the
 	# comparison is '>' ($numbytes == 0), in which case 
 	# read to the next null or "\n". (that's what BSD's file does)
@@ -1215,7 +1215,7 @@ sub readMagicLine {
     }
     
     # check if type is valid
-    if (!exists($TEMPLATES{$type})) {
+    if (!exists($TEMPLATES{$type}) && $type !~ /^string/) {
 	warn "Invalid type '$type' at line $line_num\n";
 	return;
     }
@@ -1242,7 +1242,7 @@ sub readMagicLine {
     else { $operator = '='; }
     
 
-    if ($type eq 'string') {
+    if ($type =~ /string/) {
 	$testval = $line;
 
 	# do octal/hex conversion
