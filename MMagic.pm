@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.2 1999/06/16 09:25:49 knok Exp $
+# $Id: MMagic.pm,v 1.3 1999/07/13 00:49:54 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -238,7 +238,7 @@ use FileHandle;
 use strict;
 
 use vars qw(
-%TEMPLATES %ESC %SPECIALS $VERSION
+%TEMPLATES %ESC %SPECIALS %FILEEXTS $VERSION
 $magicFile $checkMagic $followLinks $fileList
 $dataLoc
 );
@@ -278,13 +278,20 @@ BEGIN {
 # different texts.  This isn't rocket science.  It's prone to
 # failure so these checks are only a last resort.
 %SPECIALS = 	(
-		 "text/rfc822" => [ "Received:",   
-			     ">From",       
-			     "Return-Path:",
-			     "Cc:",         ],
-		 "text/news" => [ "Newsgroups:", 
-			     "Path:",       
-			     "Organization:" ],
+		 "text/plain; x-type=rfc" => [
+			      "^Network Working Group",
+			      "^Request for Comments:",
+			      "^Obsoletes:",
+			      "^Category:",
+			      "^Updates:",
+				   ],
+		 "message/rfc822" => [ "^Received:",   
+			     "^>From",       
+			     "^Return-Path:",
+			     "^Cc:",         ],
+		 "message/news" => [ "^Newsgroups:", 
+			     "^Path:",       
+			     "^Organization:" ],
 		 "text/html" => [ "<html>",
 			     "<HTML>",
 			     "<head>",
@@ -297,17 +304,26 @@ BEGIN {
 			     "<!DOCTYPE",
 			],
 		 "text/x-roff" => [
-			      "\.SH",
-			      "\.PP",
-			      "\.TH",
-			      "\.BR",
-			      "\.SS",
-			      "\.TP",
-			      "\.IR",
+			      "^\\.SH",
+			      "^\\.PP",
+			      "^\\.TH",
+			      "^\\.BR",
+			      "^\\.SS",
+			      "^\\.TP",
+			      "^\\.IR",
 				   ],
 		);
 
-$VERSION = "0.14";
+%FILEEXTS = (
+	     'gz$' => 'application/x-gzip',
+	     'Z$' => 'application/x-compress',
+	     'txt$' => 'text/plain',
+	     '^rfc\d+\.txt$' => 'text/plain; x-type=rfc',
+	     '^draft-(\w*-)+-\d+\.txt$' => 'text/plain; x-type=internet-draft', #' (for cperl-mode)
+	     '^fyi\d+\.txt$' => 'text/plain; x-type=fyi',
+);
+
+$VERSION = "0.15";
 undef $dataLoc;
 }
 
@@ -450,6 +466,8 @@ sub checktype_contents {
     my $desc;
     my $mtype;
 
+    return 'application/octet-stream' if (length($data) <= 0);
+
     # 3) iterate over each magic entry.
     my $matchFound = 0;
     my $m;
@@ -487,22 +505,27 @@ sub checktype_data {
     my $data = shift;
     my $mtype;
 
+    # truncate data
+    $data = substr($data, 0, 8192);
+
     if (check_binary($data)) {
 	$mtype = "application/octet-stream";
     } else {
 	# in BSD's version, there's an effort to search from
 	# more specific to less, but I don't do that.
-	my ($type,$token);
-	foreach $type (keys %SPECIALS) {
-	    foreach $token (@{$SPECIALS{$type}}) {
-		# we could do \b word boundaries if the end chars in
-		# $token were always \w, but they're not.  this is
-		    # crude guessing anyway.
-		if ($data =~ /\Q$token\E/m) {
-		    $mtype = $type;
-		    goto ALLDONE;
-		}
+	my ($token, %val);
+	foreach my $type (keys %SPECIALS) {
+	    my $token = '(' . 
+	      (join '|', sort {length($b) <=> length($a)} @{$SPECIALS{$type}})
+		. ')';
+	    if ($data =~ /$token/mg) {
+		$val{$type} = pos($data);
 	    }
+	}
+	# search latest match
+	if (%val) {
+	    my @skeys = sort { $val{$a} <=> $val{$b} } keys %val;
+	    $mtype = $skeys[0];
 	}
 	
       ALLDONE:
@@ -513,14 +536,32 @@ sub checktype_data {
     return $mtype;
 }
 
+sub checktype_byfilename {
+    my $self = shift;
+    my $fname = shift;
+    my $type;
+
+    $fname =~ s/^.*\///;
+    for my $regex (keys %FILEEXTS) {
+	if ($fname =~ /$regex/) {
+	    if ((defined $type && $type !~ /;/) || (! defined $type)) {
+		$type = $FILEEXTS{$regex}; # has no x-type param
+	    }
+	}
+    }
+    $type = 'application/octet-stream' unless defined $type;
+    return $type;
+}
+
 sub check_binary {
     my ($data) = @_;
     my $len = length($data);
-    my $count = ($data =~ tr/[\x00-\x1f]//);
+    my $count = ($data =~ tr/[\x00-\x09\x0b-\x1a\x1c-\x1f]//); # exclude ESC, nl
     return 1 if ($len <= 0); # no contents
     return 1 if (($count/$len) > 0.1); # binary
     return 0;
 }
+
 
 #if ($checkMagic) {
 #    # read the whole file if we haven't already
@@ -719,7 +760,7 @@ sub magicMatchStr {
     if ($offtype == 1) {
 	my ($off1, $sz, $template, $off2) = @$offset;
 	return if (length($str) < $off1);
-	$data = substr($str, 0, $sz);
+	$data = pack("a$sz", $str);
 	$off2 += unpack($template,$data);
 	return if (length($str) < $off2);
     }
@@ -737,7 +778,7 @@ sub magicMatchStr {
 	# comparison is '>' ($numbytes == 0), in which case 
 	# read to the next null or "\n". (that's what BSD's file does)
 	if ($numbytes > 0) {
-	    $data = substr($str, 0, $numbytes);
+	    $data = pack("a$numbytes", $str);
 	}
 	else {
 	    $str =~ /^(.*)\0|$/;
@@ -859,6 +900,7 @@ sub readMagicEntry {
 
     $line = $$MF[1];		# buffered last line
     while (1) {
+	$line = '' if (! defined $line);
 	if ($line =~ /^\#/ || $line =~ /^\s*$/) {
 	    last if $magicFH->eof();
 	    $line = <$magicFH>;
@@ -867,6 +909,8 @@ sub readMagicEntry {
 	}
 	
 	my ($thisDepth) = ($line =~ /^(>+)/);
+	$thisDepth = '' if (! defined $thisDepth);
+	$depth = 0 if (! defined $depth);
 
 	if (length($thisDepth) > $depth) {
 	    $$MF[1] = $line;
@@ -1129,6 +1173,14 @@ __DATA__
 #------------------------------------------------------------------------------
 # Localstuff:  file(1) magic for locally observed files
 # Add any locally observed files here.
+#
+
+# The following paramaters are created for Namazu.
+# <http://openlab.ring.gr.jp/namazu/>
+#
+# 1999/06/15
+0	string		\<!--\ MHonArc		text/html; x-type=mhonarc
+0	string		BZh			application/x-bzip2
 
 #------------------------------------------------------------------------------
 # end local stuff
@@ -1482,10 +1534,3 @@ __DATA__
 #						DL file version 1 , medium format (160x100, 4 images/screen)
 0	byte		1			video/unknown
 0	byte		2			video/unknown
-#
-# The following paramaters are created for Namazu.
-# <http://openlab.ring.gr.jp/namazu/>
-#
-# 1999/06/15
-0	string		<!--\ MHonArc		text/html; x-type=mhonarc
-0	string		BZh			application/x-bzip2
