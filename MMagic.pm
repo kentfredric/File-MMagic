@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.41 2000/12/11 06:34:10 knok Exp $
+# $Id: MMagic.pm,v 1.44 2001/02/09 01:09:12 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -274,7 +274,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.11";
+$VERSION = "1.12";
 $allowEightbit = 1;
 undef $dataLoc;
 }
@@ -556,9 +556,8 @@ sub checktype_data {
     # truncate data
     $data = substr($data, 0, 0x8564);
 
-    if (check_binary($data)) {
-	$mtype = "application/octet-stream";
-    } else {
+    # at first, check SPECIALS
+    {
 	# in BSD's version, there's an effort to search from
 	# more specific to less, but I don't do that.
 	my ($token, %val);
@@ -571,6 +570,7 @@ sub checktype_data {
 		$val{$type} = pos($tdata);
 	    }
 	}
+
 	# search latest match
 	if (%val) {
 	    my @skeys = sort { $val{$a} <=> $val{$b} } keys %val;
@@ -579,6 +579,9 @@ sub checktype_data {
 	
       ALLDONE:
 #	$mtype = 'text/plain' if (! defined $mtype);
+    }
+    if (! defined $mtype && check_binary($data)) {
+	$mtype = "application/octet-stream";
     }
 	
 #    $mtype = 'text/plain' if (! defined $mtype);
