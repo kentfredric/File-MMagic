@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.40 2000/10/10 10:11:25 knok Exp $
+# $Id: MMagic.pm,v 1.41 2000/12/11 06:34:10 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -114,6 +114,7 @@ File::MMagic - Guess file type
 
   $mm = new File::MMagic; # use internal magic file
   # $mm = File::MMagic::new('/etc/magic'); # use external magic file
+  # $mm->disallowEightbit() # considered [0x80-0xff] as binary data
   $res = $mm->checktype_filename("/somewhere/unknown/file");
 
   $fh = new FileHandle "< /somewhere/unknown/file2";
@@ -274,7 +275,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.09";
+$VERSION = "1.10";
 undef $dataLoc;
 }
 
@@ -346,7 +347,14 @@ sub new {
 	     '\.html$' => 'text/html',
 	     '\.htm$' => 'text/html',
     };
+    $self->{eightbit} = 1;
     bless($self);
+    return $self;
+}
+
+sub disallowEightbit {
+    my $self = shift;
+    $self->{eightbit} = 0;
     return $self;
 }
 
@@ -604,9 +612,15 @@ sub checktype_byfilename {
 sub check_binary {
     my ($data) = @_;
     my $len = length($data);
-    my $count = ($data =~ tr/[\x00-\x08\x0b-\x0c\x0e-\x1a\x1c-\x1f]//); # exclude TAB, ESC, nl, cr
-    return 1 if ($len <= 0); # no contents
-    return 1 if (($count/$len) > 0.1); # binary
+    if ($self->{eightbit}) {
+	my $count = ($data =~ tr/[\x00-\x08\x0b-\x0c\x0e-\x1a\x1c-\x1f]//); # exclude TAB, ESC, nl, cr
+        return 1 if ($len <= 0); # no contents
+        return 1 if (($count/$len) > 0.1); # binary
+    } else {
+	my $count = ($data =~ tr/[\x00-\x08\x0b-\x0c\x0e-\x1a\x1c-\x1f\x80-\xff]//); # exclude TAB, ESC, nl, cr
+        return 1 if ($len <= 0); # no contents
+        return 1 if (($count/$len) > 0.3); # binary
+    }
     return 0;
 }
 

@@ -1,3 +1,8 @@
+2000-12-11  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm (disallowEightbit): Added new entry.
+	Version 1.10.
+
 2000-10-10  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* MMagic.pm: Removed a text/x-info related entry.
