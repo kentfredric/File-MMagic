@@ -1,3 +1,12 @@
+1999-07-29  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Fixed %SPECIALS evaluation bug.
+
+1999-07-14  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Added blessing FileHandle process in new function.
+	 (Thanks to Mr. majiCk)
+
 1999-07-13  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Release version 0.15.

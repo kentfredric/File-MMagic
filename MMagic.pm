@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.3 1999/07/13 00:49:54 knok Exp $
+# $Id: MMagic.pm,v 1.5 1999/07/29 06:52:46 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -323,7 +323,7 @@ BEGIN {
 	     '^fyi\d+\.txt$' => 'text/plain; x-type=fyi',
 );
 
-$VERSION = "0.15";
+$VERSION = "0.16";
 undef $dataLoc;
 }
 
@@ -335,6 +335,7 @@ sub new {
     $self->{magic} = [];
     if (! @_) {
 	my $fh = *File::MMagic::DATA{IO};
+	bless $fh, 'FileHandle' if ref $fh ne 'FileHandle';
 	$dataLoc = $fh->tell() if (! defined $dataLoc);
 	$fh->seek($dataLoc, 0);
 	&readMagicHandle($self, $fh);
@@ -516,10 +517,11 @@ sub checktype_data {
 	my ($token, %val);
 	foreach my $type (keys %SPECIALS) {
 	    my $token = '(' . 
-	      (join '|', sort {length($b) <=> length($a)} @{$SPECIALS{$type}})
+	      (join '|', sort {length($a) <=> length($b)} @{$SPECIALS{$type}})
 		. ')';
-	    if ($data =~ /$token/mg) {
-		$val{$type} = pos($data);
+	    my $tdata = $data;
+	    if ($tdata =~ /$token/mg) {
+		$val{$type} = pos($tdata);
 	    }
 	}
 	# search latest match
