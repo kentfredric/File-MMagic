@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.39 2000/09/12 08:07:14 knok Exp $
+# $Id: MMagic.pm,v 1.40 2000/10/10 10:11:25 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -274,7 +274,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.08";
+$VERSION = "1.09";
 undef $dataLoc;
 }
 
@@ -1573,7 +1573,7 @@ __DATA__
 # Texinfo and GNU Info, from Daniel Quinlan (quinlan@yggdrasil.com)
 0	string		\\input\ texinfo		text/x-texinfo
 0	string		This\ is\ Info\ file	text/x-info
-0	string		This\ is\ 				text/x-info
+#0	string		This\ is\ 				text/x-info
 
 # correct TeX magic for Linux (and maybe more)
 # from Peter Tobias (tobias@server.et-inf.fho-emden.de)

@@ -1,3 +1,8 @@
+2000-10-10  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Removed a text/x-info related entry.
+	Version 1.09.
+
 2000-09-12  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* MMagic.pm : Added image/png entry.
