@@ -1,3 +1,23 @@
+2003-05-08  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.19.
+
+	* MMagic.pm (new): Changed the scope of $dataLoc variable.
+	  I think it should be fix the following problem.
+	  https://rt.cpan.org/Ticket/Display.html?id=2499
+	  If the problem is still there, mail me please.
+	  (Reported and patch contributed by Mark Stosberg, thank you)
+
+	* MMagic.pm (__DATA__): Added EPS entry.
+	  (Contributed by Jason Maggard, thank you)
+
+2003-03-26  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.18.
+
+	* MMagic.pm (new): Fixed special entry for x-roff.
+	(Reported by Okayasu, thank you)
+
 2003-03-03  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Version 1.17.

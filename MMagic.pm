@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.55 2003/03/03 10:39:43 knok Exp $
+# $Id: MMagic.pm,v 1.57 2003/05/08 13:36:11 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -297,7 +297,7 @@ use strict;
 use vars qw(
 %TEMPLATES %ESC $VERSION
 $magicFile $checkMagic $followLinks $fileList
-$dataLoc $allowEightbit
+$allowEightbit
 );
 
 BEGIN {
@@ -330,9 +330,8 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.17";
+$VERSION = "1.19";
 $allowEightbit = 1;
-undef $dataLoc;
 }
 
 sub new {
@@ -345,7 +344,7 @@ sub new {
 	my $fh = *File::MMagic::DATA{IO};
 	binmode($fh);
 	bless $fh, 'FileHandle' if ref $fh ne 'FileHandle';
-	$dataLoc = $fh->tell() if (! defined $dataLoc);
+	my $dataLoc = $fh->tell();
 	$fh->seek($dataLoc, 0);
 	&readMagicHandle($self, $fh);
     } else {
@@ -388,13 +387,13 @@ sub new {
 			],
 		 "text/x-roff" => [
 			      '^\\.\\\\"',
-			      "^\\.SH",
-			      "^\\.PP",
-			      "^\\.TH",
-			      "^\\.BR",
-			      "^\\.SS",
-			      "^\\.TP",
-			      "^\\.IR",
+			      "^\\.SH ",
+			      "^\\.PP ",
+			      "^\\.TH ",
+			      "^\\.BR ",
+			      "^\\.SS ",
+			      "^\\.TP ",
+			      "^\\.IR ",
 				   ],
 		};
 
@@ -1635,6 +1634,9 @@ __DATA__
 # PostScript
 0	string		%!		application/postscript
 0	string		\004%!		application/postscript
+# EPS
+# Jason's support for EPSF <jmaggard@timesdispatch.com>
+47 string  EPSF  image/eps
 
 # Acrobat
 # (due to clamen@cs.cmu.edu)
