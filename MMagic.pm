@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.22 1999/11/30 06:58:54 knok Exp $
+# $Id: MMagic.pm,v 1.24 2000/02/10 02:26:03 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -275,7 +275,7 @@ BEGIN {
 	    f => "\f",
 	    v => "\v" );
 
-$VERSION = "0.19";
+$VERSION = "0.20";
 undef $dataLoc;
 }
 
@@ -1320,7 +1320,7 @@ __DATA__
 # Microsoft WAVE format (*.wav)
 # [GRR 950115:  probably all of the shorts and longs should be leshort/lelong]
 #					Microsoft RIFF
-0	string		RIFF		audio/unknown	
+0	string		RIFF		audio/x-msvideo	
 #					- WAVE format
 >8	string		WAVE		audio/x-wav	
 
@@ -1621,3 +1621,21 @@ __DATA__
 >48	byte		0x1B		application/excel
 >64 byte		0x00		application/powerpoint
 >64 byte		0x01		application/msword
+
+#
+# MPEG audio/video format
+# Contributer: Peter Breton
+#
+
+0	belong		0x000001b3	video/mpeg
+0	belong		0x000001ba	video/mpeg
+0	beshort		&0xffe0		audio/mpeg
+
+#
+# QuickTime format
+# Contributer: Peter Breton
+#
+
+0	string		MOVI		video/quicktime
+4	string		moov		video/quicktime
+4	string		mdat		video/quicktime

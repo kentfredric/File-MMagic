@@ -5,4 +5,4 @@ COPYING
 README.ja
 README.en
 Makefile.PL
-File-MMagic.spec
+perl-File-MMagic.spec

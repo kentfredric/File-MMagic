@@ -1,3 +1,15 @@
+2000-02-10  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 0.20.
+
+	* MMagic.pm: Fixed media type for RIFF format.
+	Added audio/mpeg, video/mpeg, video/quicktime format.
+	(Thanks for Mr. Perter Breton.)
+
+1999-12-02  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* prel-File-MMagic.spec: Renamed from File-MMagic.spec.
+
 1999-11-30  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* MMagic.pm: Version 0.19.

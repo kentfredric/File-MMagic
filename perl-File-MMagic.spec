@@ -1,14 +1,16 @@
-%define	ver	0.17
+%define	ver	0.19
+%define rel	1
 
 Summary: file command like perl5 module
-Name: File-MMagic
+Name: perl-File-MMagic
 Version: %{ver}
-Release: 1
+Release: %{rel}
 Copyright: distributable
 Group: Utilities/File
 Source: http://www.perl.com/CPAN/modules/by-module/File/File-MMagic-%{ver}.tar.gz
 BuildRoot: /var/tmp/File-MMagic-%{ver}-buildroot/
 Requires: perl >= 5.004
+Obsoletes: File-MMagic
 Summary(ja): fileコマンド風perl5モジュール
 
 %description
@@ -21,7 +23,7 @@ command.
 
 
 %prep
-%setup
+%setup -n File-MMagic-%{ver}
 
 %build
 CFLAGS="$RPM_OPT_FLAGS" perl Makefile.PL
@@ -43,5 +45,11 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/perl5/man/man3/File::MMagic.3
 
 %changelog
+* Thu Dec 02 1999 Ryuji Abe <raeva@t3.rim.or.jp>
+- Specified Obsoletes: File-MMagic.
+
+* Wed Dec 01 1999 Ryuji Abe <raeva@t3.rim.or.jp>
+- Fixed package name (Added prefix `perl-').
+
 * Thu Sep 09 1999 Ryuji Abe <raeva@t3.rim.or.jp>
 - First build.
