@@ -1,6 +1,18 @@
+1999-09-06  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Added excluding character TAB on check_binary() function.
+	 (Tkanks to Mr.Takaku)
+	* Added VRML magic entries. (Tkanks to Mr.Takaku)
+	
+1999-08-03  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Fixed flie close bug in checktype_filehandle().
+	 (Thanks to Mr. Alan)
+
 1999-07-29  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Fixed %SPECIALS evaluation bug.
+	* Release version 0.16.
 
 1999-07-14  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 

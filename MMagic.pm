@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.5 1999/07/29 06:52:46 knok Exp $
+# $Id: MMagic.pm,v 1.8 1999/09/06 07:42:21 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -323,7 +323,7 @@ BEGIN {
 	     '^fyi\d+\.txt$' => 'text/plain; x-type=fyi',
 );
 
-$VERSION = "0.16";
+$VERSION = "0.17";
 undef $dataLoc;
 }
 
@@ -417,7 +417,10 @@ sub checktype_filename {
 
     }
 
-    return checktype_filehandle($self, $fh, $desc);
+    my $out = checktype_filehandle($self, $fh, $desc);
+    undef $fh;
+
+    return $out;
 }
 
 sub checktype_filehandle {
@@ -455,7 +458,6 @@ sub checktype_filehandle {
 	$mtype = checktype_data($self, $data);
     }
 
-    $fh->close();
     $mtype = 'text/plain' if (! defined $mtype);
 
     return $mtype;
@@ -558,7 +560,7 @@ sub checktype_byfilename {
 sub check_binary {
     my ($data) = @_;
     my $len = length($data);
-    my $count = ($data =~ tr/[\x00-\x09\x0b-\x1a\x1c-\x1f]//); # exclude ESC, nl
+    my $count = ($data =~ tr/[\x00-\x08\x0b-\x1a\x1c-\x1f]//); # exclude TAB, ESC, nl
     return 1 if ($len <= 0); # no contents
     return 1 if (($count/$len) > 0.1); # binary
     return 0;
@@ -1183,6 +1185,13 @@ __DATA__
 # 1999/06/15
 0	string		\<!--\ MHonArc		text/html; x-type=mhonarc
 0	string		BZh			application/x-bzip2
+
+# The following paramaters are local hack.
+#
+# 1999/09/06
+# VRML (suggested by Masao Takaku)
+0	string		#VRML V1.0 ascii	model/vrml
+0	string		#VRML V2.0 utf8		model/vrml
 
 #------------------------------------------------------------------------------
 # end local stuff
