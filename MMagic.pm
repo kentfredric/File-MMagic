@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.52 2002/02/22 05:07:42 knok Exp $
+# $Id: MMagic.pm,v 1.54 2002/09/12 05:04:06 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -330,7 +330,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.15";
+$VERSION = "1.16";
 $allowEightbit = 1;
 undef $dataLoc;
 }
@@ -351,8 +351,8 @@ sub new {
     } else {
 	my $filename = shift;
 	my $fh = new FileHandle;
-        binmode($fh);
 	if ($fh->open("< $filename")) {
+	    binmode($fh);
 	    &readMagicHandle($self, $fh);
 	} else {
 	    warn __PACKAGE__ . " couldn't load specified file $filename";
@@ -387,6 +387,7 @@ sub new {
 			     "<H1[^>]*>",
 			],
 		 "text/x-roff" => [
+			      '^\\.\\\\"',
 			      "^\\.SH",
 			      "^\\.PP",
 			      "^\\.TH",

@@ -1,3 +1,14 @@
+2002-09-12  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+        * Version 1.16.
+        
+        * MMagic.pm (new): Fixed binmode() place.
+        (contributed by Everton da Silva Marques, thank you.)
+
+2002-03-14  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm (new): Added a signature for text/x-roff type.
+
 2002-02-22  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Version 1.15.
