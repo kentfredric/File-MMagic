@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.8 1999/09/06 07:42:21 knok Exp $
+# $Id: MMagic.pm,v 1.22 1999/11/30 06:58:54 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -112,13 +112,14 @@ File::MMagic - Guess file type
   use File::MMagic;
   use FileHandle;
 
-  $mm = new File::MMagic;
+  $mm = new File::MMagic; # use internal magic file
+  # $mm = File::MMagic::new('/etc/magic'); # use external magic file
   $res = $mm->checktype_filename("/somewhere/unknown/file");
 
   $fh = new FileHandle "< /somewhere/unknown/file2";
   $res = $mm->checktype_filehandle($fh);
 
-  $fh->read($data, 8192);
+  $fh->read($data, 0x8564);
   $res = $mm->checktype_contents($data);
 
 =head1 ABSTRACT
@@ -238,7 +239,7 @@ use FileHandle;
 use strict;
 
 use vars qw(
-%TEMPLATES %ESC %SPECIALS %FILEEXTS $VERSION
+%TEMPLATES %ESC $VERSION
 $magicFile $checkMagic $followLinks $fileList
 $dataLoc
 );
@@ -274,56 +275,7 @@ BEGIN {
 	    f => "\f",
 	    v => "\v" );
 
-# from the BSD names.h, some tokens for hard-coded checks of
-# different texts.  This isn't rocket science.  It's prone to
-# failure so these checks are only a last resort.
-%SPECIALS = 	(
-		 "text/plain; x-type=rfc" => [
-			      "^Network Working Group",
-			      "^Request for Comments:",
-			      "^Obsoletes:",
-			      "^Category:",
-			      "^Updates:",
-				   ],
-		 "message/rfc822" => [ "^Received:",   
-			     "^>From",       
-			     "^Return-Path:",
-			     "^Cc:",         ],
-		 "message/news" => [ "^Newsgroups:", 
-			     "^Path:",       
-			     "^Organization:" ],
-		 "text/html" => [ "<html>",
-			     "<HTML>",
-			     "<head>",
-			     "<HEAD>",
-			     "<title>",
-			     "<TITLE>",
-			     "<h1>",
-			     "<H1>",
-			     "<!--",
-			     "<!DOCTYPE",
-			],
-		 "text/x-roff" => [
-			      "^\\.SH",
-			      "^\\.PP",
-			      "^\\.TH",
-			      "^\\.BR",
-			      "^\\.SS",
-			      "^\\.TP",
-			      "^\\.IR",
-				   ],
-		);
-
-%FILEEXTS = (
-	     'gz$' => 'application/x-gzip',
-	     'Z$' => 'application/x-compress',
-	     'txt$' => 'text/plain',
-	     '^rfc\d+\.txt$' => 'text/plain; x-type=rfc',
-	     '^draft-(\w*-)+-\d+\.txt$' => 'text/plain; x-type=internet-draft', #' (for cperl-mode)
-	     '^fyi\d+\.txt$' => 'text/plain; x-type=fyi',
-);
-
-$VERSION = "0.17";
+$VERSION = "0.19";
 undef $dataLoc;
 }
 
@@ -335,12 +287,98 @@ sub new {
     $self->{magic} = [];
     if (! @_) {
 	my $fh = *File::MMagic::DATA{IO};
+	binmode($fh);
 	bless $fh, 'FileHandle' if ref $fh ne 'FileHandle';
 	$dataLoc = $fh->tell() if (! defined $dataLoc);
 	$fh->seek($dataLoc, 0);
 	&readMagicHandle($self, $fh);
+    } else {
+	my $filename = shift;
+	my $fh = new FileHandle;
+        binmode($fh);
+	if ($fh->open("< $filename")) {
+	    &readMagicHandle($self, $fh);
+	} else {
+	    warn __PACKAGE__ . " couldn't load specified file $filename";
+	}
     }
+
+# from the BSD names.h, some tokens for hard-coded checks of
+# different texts.  This isn't rocket science.  It's prone to
+# failure so these checks are only a last resort.
+    $self->{SPECIALS} = {
+#		 "text/plain; x-type=rfc" => [
+#			      "^Network Working Group",
+#			      "^Request for Comments:",
+#			      "^Obsoletes:",
+#			      "^Category:",
+#			      "^Updates:",
+#				   ],
+		 "message/rfc822" => [ "^Received:",   
+			     "^>From ",       
+			     "^From ",       
+			     "^To: ",
+			     "^Return-Path: ",
+			     "^Cc: ",
+			     "^X-Mailer: "],
+		 "message/news" => [ "^Newsgroups: ", 
+			     "^Path: ",       
+			     "^X-Newsreader: "],
+		 "text/html" => [ "<html[^>]*>",
+			     "<HTML[^>]*>",
+			     "<head[^>]*>",
+			     "<HEAD[^>]*>",
+			     "<body[^>]*>",
+			     "<BODY[^>]*>",
+			     "<title[^>]*>",
+			     "<TITLE[^>]*>",
+			     "<h1[^>]*>",
+			     "<H1[^>]*>",
+			],
+		 "text/x-roff" => [
+			      "^\\.SH",
+			      "^\\.PP",
+			      "^\\.TH",
+			      "^\\.BR",
+			      "^\\.SS",
+			      "^\\.TP",
+			      "^\\.IR",
+				   ],
+		};
+
+    $self->{FILEEXTS} = {
+	     'gz$' => 'application/x-gzip',
+	     'Z$' => 'application/x-compress',
+	     'txt$' => 'text/plain',
+	     'html$' => 'text/html',
+	     'htm$' => 'text/html',
+#	     '^rfc\d+\.txt$' => 'text/plain; x-type=rfc',
+#	     '^draft-(\w*-)+-\d+\.txt$' => 'text/plain; x-type=internet-draft', #' (for cperl-mode)
+#	     '^fyi\d+\.txt$' => 'text/plain; x-type=fyi',
+    };
     bless($self);
+    return $self;
+}
+
+sub addSpecials {
+    my $self = shift;
+    my $mtype = shift;
+    $self->{SPECIALS}->{"$mtype"} = [@_];
+    return $self;
+}
+
+sub addFileExts {
+    my $self = shift;
+    my $filepat = shift;
+    my $mtype = shift;
+    $self->{FILEXTS}->{"$filepat"} = $mtype;
+    return $self;
+}
+
+sub addMagicEntry {
+    my $self = shift;
+    my $entry = shift;
+    push @{$self->{magic}}, [$entry, -1, []];
     return $self;
 }
 
@@ -454,7 +492,7 @@ sub checktype_filehandle {
     if (!$matchFound) {
 	my $data;
 	$fh->seek(0,0);
-	$fh->read($data, 8192);
+	$fh->read($data, 0x8564);
 	$mtype = checktype_data($self, $data);
     }
 
@@ -466,20 +504,38 @@ sub checktype_filehandle {
 sub checktype_contents {
     my $self = shift;
     my $data = shift;
+    my $mtype;
+
+    return 'application/octet-stream' if (length($data) <= 0);
+
+    $mtype = checktype_magic($self, $data);
+
+    # 4) check if it's text or binary.
+    # if it's text, then do a bunch of searching for special tokens
+    if (!defined $mtype) {
+	$mtype = checktype_data($self, $data);
+    }
+
+    $mtype = 'text/plain' if (! defined $mtype);
+
+    return $mtype;
+}
+
+sub checktype_magic {
+    my $self = shift;
+    my $data = shift;
     my $desc;
     my $mtype;
 
     return 'application/octet-stream' if (length($data) <= 0);
 
     # 3) iterate over each magic entry.
-    my $matchFound = 0;
     my $m;
     for ($m = 0; $m <= $#{$self->{magic}}; $m++) {
 
 	# check if the m-th magic entry matches
 	# if it does, then $desc will contain an updated description
 	if (magicMatchStr($self->{magic}->[$m],\$desc,$data)) {
-	    $matchFound = 1;
 	    $mtype = $desc;
 	    last;
 	}
@@ -492,14 +548,6 @@ sub checktype_contents {
 	}
     }
 
-    # 4) check if it's text or binary.
-    # if it's text, then do a bunch of searching for special tokens
-    if (!$matchFound) {
-	$mtype = checktype_data($self, $data);
-    }
-
-    $mtype = 'text/plain' if (! defined $mtype);
-
     return $mtype;
 }
 
@@ -508,8 +556,10 @@ sub checktype_data {
     my $data = shift;
     my $mtype;
 
+    return undef if (length($data) <= 0);
+
     # truncate data
-    $data = substr($data, 0, 8192);
+    $data = substr($data, 0, 0x8564);
 
     if (check_binary($data)) {
 	$mtype = "application/octet-stream";
@@ -517,9 +567,9 @@ sub checktype_data {
 	# in BSD's version, there's an effort to search from
 	# more specific to less, but I don't do that.
 	my ($token, %val);
-	foreach my $type (keys %SPECIALS) {
+	foreach my $type (keys %{$self->{SPECIALS}}) {
 	    my $token = '(' . 
-	      (join '|', sort {length($a) <=> length($b)} @{$SPECIALS{$type}})
+	      (join '|', sort {length($a) <=> length($b)} @{$self->{SPECIALS}->{$type}})
 		. ')';
 	    my $tdata = $data;
 	    if ($tdata =~ /$token/mg) {
@@ -533,10 +583,10 @@ sub checktype_data {
 	}
 	
       ALLDONE:
-	$mtype = 'text/plain' if (! defined $mtype);
+#	$mtype = 'text/plain' if (! defined $mtype);
     }
 	
-    $mtype = 'text/plain' if (! defined $mtype);
+#    $mtype = 'text/plain' if (! defined $mtype);
     return $mtype;
 }
 
@@ -546,10 +596,10 @@ sub checktype_byfilename {
     my $type;
 
     $fname =~ s/^.*\///;
-    for my $regex (keys %FILEEXTS) {
+    for my $regex (keys %{$self->{FILEEXTS}}) {
 	if ($fname =~ /$regex/) {
 	    if ((defined $type && $type !~ /;/) || (! defined $type)) {
-		$type = $FILEEXTS{$regex}; # has no x-type param
+		$type = $self->{FILEEXTS}->{$regex}; # has no x-type param
 	    }
 	}
     }
@@ -560,7 +610,7 @@ sub checktype_byfilename {
 sub check_binary {
     my ($data) = @_;
     my $len = length($data);
-    my $count = ($data =~ tr/[\x00-\x08\x0b-\x1a\x1c-\x1f]//); # exclude TAB, ESC, nl
+    my $count = ($data =~ tr/[\x00-\x08\x0b-\x0c\x0e-\x1a\x1c-\x1f]//); # exclude TAB, ESC, nl, cr
     return 1 if ($len <= 0); # no contents
     return 1 if (($count/$len) > 0.1); # binary
     return 0;
@@ -750,9 +800,11 @@ sub magicMatchStr {
     # false for every item which allows reading/checking the entire
     # magic file.
     return unless defined($str);
+    return if ($str eq '');
     
     my ($offtype, $offset, $numbytes, $type, $mask, $op, $testval, 
 	$template, $message, $subtests) = @$item;
+    return unless defined $op;
 
     # bytes from file
     my $data;
@@ -1182,16 +1234,16 @@ __DATA__
 # The following paramaters are created for Namazu.
 # <http://openlab.ring.gr.jp/namazu/>
 #
-# 1999/06/15
-0	string		\<!--\ MHonArc		text/html; x-type=mhonarc
+# 1999/08/13
+#0	string		\<!--\ MHonArc		text/html; x-type=mhonarc
 0	string		BZh			application/x-bzip2
 
 # The following paramaters are local hack.
 #
-# 1999/09/06
+# 1999/09/09
 # VRML (suggested by Masao Takaku)
-0	string		#VRML V1.0 ascii	model/vrml
-0	string		#VRML V2.0 utf8		model/vrml
+0	string		#VRML\ V1.0\ ascii	model/vrml
+0	string		#VRML\ V2.0\ utf8	model/vrml
 
 #------------------------------------------------------------------------------
 # end local stuff
@@ -1468,7 +1520,7 @@ __DATA__
 #
 
 0	string		\376\067\0\043			application/msword
-0	string		\320\317\021\340\241\261	application/msword
+#0	string		\320\317\021\340\241\261	application/msword
 0	string		\333\245-\0\0\0			application/msword
 
 
@@ -1545,3 +1597,27 @@ __DATA__
 #						DL file version 1 , medium format (160x100, 4 images/screen)
 0	byte		1			video/unknown
 0	byte		2			video/unknown
+
+#------------------------------------------------------------------------------
+# ichitaro456: file(1) magic for Just System Word Processor Ichitaro
+#
+# Contributor kenzo-:
+# Reversed-engineered JS Ichitaro magic numbers
+#
+
+0	string		\104\117\0\103
+>43	 byte		0x14		application/ichitaro4
+>43	 byte		0x15		application/ichitaro5
+>43	 byte		0x16		application/ichitaro6
+
+#------------------------------------------------------------------------------
+# office97: file(1) magic for MicroSoft Office files
+#
+# Contributor kenzo-:
+# Reversed-engineered MS Office magic numbers
+#
+
+0	string		\320\317\021\340\241\261\032\341
+>48	byte		0x1B		application/excel
+>64 byte		0x00		application/powerpoint
+>64 byte		0x01		application/msword

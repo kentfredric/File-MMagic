@@ -1,3 +1,62 @@
+1999-11-30  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Version 0.19.
+
+1999-11-29  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Changed to work with Win32 envoronment.
+	Added excel, powerpoint, ichitaro* entries.
+	(Thanks for kenzo-.)
+
+1999-11-15  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm (new): Changed to handle specified filename for
+	magic file.
+	(Thanks for Mr. Philippe Chiasson.)
+
+1999-10-27  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Added 'AUTHOR' and 'ABSTRACT' paramaters on Makefile.PL.
+
+1999-10-05  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Added excluding character CR on check_binary() function.
+
+1999-09-14  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Changed to return magicMatchStr function when null string is
+	specified in $str.
+
+1999-09-13  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Changed `text/html' SPECIALS entry.
+	* Added empty check on checktype_data, checktype_magic.
+	* Removed non-standard type entry from %SPECIALS, %FILEEXTS, __DATA__.
+	* Added new methods addSpecials, addFileExts, addMagicEntry.
+	* Moved global %SPECIALS, %FILEEXTS variable to object.
+	* Renamed spec file.
+
+1999-09-10  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Added spec file.
+	(Thanks to Mr.Abe.)
+
+1999-09-09  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Fixed unescaped space in VRML magic entry.
+	 (Thanks to Mr.Takaku.)
+
+1999-09-08  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Changed %SPECIALS contents.
+	  (Remove 'Organization:' from news,
+	   add space character on rfc822/news message header,
+	   add "^X-Mailer: " on rfc822,
+	   add "^X-Newsreader: " on news,
+	   add "^From ", "^To: " on rfc822.)
+
+	* Separated checktype_magic() from checktype_contents().
+
 1999-09-06  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Added excluding character TAB on check_binary() function.
