@@ -1,3 +1,17 @@
+2003-11-21  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.21.
+
+	* Fixed some tests (bad usage of new method).
+
+	* Added the third test.
+	  Contributed by Simon Matthews, thank you!
+
+2003-11-20  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm (new): Fixed mod_perl issue.
+	  Contributed by Simon Matthews, thank you!
+
 2003-07-31  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Version 1.20.

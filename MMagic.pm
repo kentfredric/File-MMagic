@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.58 2003/07/31 12:53:13 knok Exp $
+# $Id: MMagic.pm,v 1.59 2003/11/21 02:25:45 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -113,8 +113,8 @@ File::MMagic - Guess file type
   use FileHandle;
 
   $mm = new File::MMagic; # use internal magic file
-  # $mm = File::MMagic::new('/etc/magic'); # use external magic file
-  # $mm = File::MMagic::new('/usr/share/etc/magic'); # if you use Debian
+  # $mm = File::MMagic->new('/etc/magic'); # use external magic file
+  # $mm = File::MMagic->new('/usr/share/etc/magic'); # if you use Debian
   $res = $mm->checktype_filename("/somewhere/unknown/file");
 
   $fh = new FileHandle "< /somewhere/unknown/file2";
@@ -339,7 +339,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.20";
+$VERSION = "1.21";
 $allowEightbit = 1;
 }
 
@@ -353,7 +353,15 @@ sub new {
 	my $fh = *File::MMagic::DATA{IO};
 	binmode($fh);
 	bless $fh, 'FileHandle' if ref $fh ne 'FileHandle';
-	my $dataLoc = $fh->tell();
+	my $dataLoc;
+	# code block to localise the no strict;, contribute by Simon Matthews
+	{
+	    no strict 'refs';
+	    my $instance = \${ "$class\::_instance" };
+	    $$instance = $fh->tell() unless $$instance;
+	    $dataLoc = $$instance;
+	}
+
 	$fh->seek($dataLoc, 0);
 	&readMagicHandle($self, $fh);
     } else {
