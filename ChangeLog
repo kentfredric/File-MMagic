@@ -1,0 +1,21 @@
+1999-06-15  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Add 2 magic entries (MHonArc and bzip2).
+
+1999-06-14  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Add the Apache License.
+	 (Thanks to Ian Kluft.)
+	* Add checktype_contents() function.
+	* Add zero check routine in check_binary() funciton.
+
+1999-06-11  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Change __DATA__ handling.
+	 (Thanks to Mr. Inaba, Mr. Maeda, and fj.comp.lang.perl.)
+
+1999-06-10  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Initial version.
+	* Branch 'classify' version.
+
