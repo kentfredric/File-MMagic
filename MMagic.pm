@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.54 2002/09/12 05:04:06 knok Exp $
+# $Id: MMagic.pm,v 1.55 2003/03/03 10:39:43 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -330,7 +330,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.16";
+$VERSION = "1.17";
 $allowEightbit = 1;
 undef $dataLoc;
 }
@@ -1421,7 +1421,7 @@ __DATA__
 #0	string		RIFF		audio/x-msvideo	
 0	string		RIFF
 #					- WAVE format
->8	string		WAVE		audio/x-wav	
+>8	string		WAVE		audio/x-wav
 
 #------------------------------------------------------------------------------
 # c-lang:  file(1) magic for C programs or various scripts
