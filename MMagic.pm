@@ -114,7 +114,6 @@ File::MMagic - Guess file type
 
   $mm = new File::MMagic; # use internal magic file
   # $mm = File::MMagic::new('/etc/magic'); # use external magic file
-  # $mm->disallowEightbit() # considered [0x80-0xff] as binary data
   $res = $mm->checktype_filename("/somewhere/unknown/file");
 
   $fh = new FileHandle "< /somewhere/unknown/file2";
@@ -242,7 +241,7 @@ use strict;
 use vars qw(
 %TEMPLATES %ESC $VERSION
 $magicFile $checkMagic $followLinks $fileList
-$dataLoc
+$dataLoc $allowEightbit
 );
 
 BEGIN {
@@ -275,7 +274,8 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.10";
+$VERSION = "1.11";
+$allowEightbit = 1;
 undef $dataLoc;
 }
 
@@ -347,14 +347,7 @@ sub new {
 	     '\.html$' => 'text/html',
 	     '\.htm$' => 'text/html',
     };
-    $self->{eightbit} = 1;
     bless($self);
-    return $self;
-}
-
-sub disallowEightbit {
-    my $self = shift;
-    $self->{eightbit} = 0;
     return $self;
 }
 
@@ -612,7 +605,7 @@ sub checktype_byfilename {
 sub check_binary {
     my ($data) = @_;
     my $len = length($data);
-    if ($self->{eightbit}) {
+    if ($allowEightbit) {
 	my $count = ($data =~ tr/[\x00-\x08\x0b-\x0c\x0e-\x1a\x1c-\x1f]//); # exclude TAB, ESC, nl, cr
         return 1 if ($len <= 0); # no contents
         return 1 if (($count/$len) > 0.1); # binary
@@ -623,7 +616,6 @@ sub check_binary {
     }
     return 0;
 }
-
 
 sub check_magic {
     my $self = shift @_;

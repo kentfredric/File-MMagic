@@ -1,5 +1,9 @@
 2000-12-11  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
+	* Discarded disallowEightbit().
+	Add new variable "allowEightbit".
+	Version 1.11.
+
 	* MMagic.pm (disallowEightbit): Added new entry.
 	Version 1.10.
 
