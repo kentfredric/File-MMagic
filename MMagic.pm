@@ -1,19 +1,19 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.32 2000/02/29 06:44:32 knok Exp $
+# $Id: MMagic.pm,v 1.33 2000/03/03 08:15:58 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
 #    <http://language.perl.com/ppt/index.html>
-# Copyright (c) 1999 NOKUBI Takatsugu <knok@daionet.gr.jp>.
-#
-# There is no warranty for the program.
+# Copyright 1999, 2000 NOKUBI Takatsugu <knok@daionet.gr.jp>.
 #
 # This product includes software developed by the Apache Group
 # for use in the Apache HTTP server project (http://www.apache.org/).
 #
 # License for the program is followed the original software. The license is
 # below.
+#
+# This program is copyright by dkulp 1999.
 #
 # This program is free and open software. You may use, copy, modify, distribute
 # and sell this program (and any modified variants) in any way you wish,
@@ -275,7 +275,7 @@ BEGIN {
 	    f => "\f",
 	    v => "\v" );
 
-$VERSION = "1.01";
+$VERSION = "1.02";
 undef $dataLoc;
 }
 
@@ -822,6 +822,7 @@ sub magicMatchStr {
     }
     else {
 	# absolute offset
+	return if ($offset > length($str));
 	$str = substr($str, $offset);
     }
 

@@ -1,3 +1,11 @@
+2000-03-03  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.02.
+
+	* MMagic.pm: Added the original copyrignt.
+	(I apology to the original author David Kulp, I overlook it.)
+	(magicMatchStr): Fixed short data handling probrem.
+
 2000-02-29  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Fixed version number. Version 1.01.
