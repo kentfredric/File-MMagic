@@ -1,3 +1,17 @@
+2005-07-29  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm: Version 1.23.
+
+2004-04-21  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* MMagic.pm (magicMatchStr): Added a length check.
+	  Reported by Tadamasa Teranishi, thank you.
+
+2004-03-17  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Build.PL: Added.
+	  Contributed by Ryuji Abe, thank you.
+
 2004-03-15  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* MMagic.pm: Version 1.22.

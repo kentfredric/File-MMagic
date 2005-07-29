@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.60 2004/03/15 08:23:04 knok Exp $
+# $Id: MMagic.pm,v 1.62 2005/07/29 05:55:34 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -339,7 +339,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.22";
+$VERSION = "1.23";
 $allowEightbit = 1;
 }
 
@@ -986,6 +986,7 @@ sub magicMatchStr {
 	#numeric
 
 	# read up to 4 bytes
+        return if (length($str) < 4);
 	$data = substr($str, 0, 4);
 
 	# If template is a ref to an array of 3 letters, 
