@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.62 2005/07/29 05:55:34 knok Exp $
+# $Id: MMagic.pm,v 1.63 2005/08/01 06:13:29 knok Exp $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -339,7 +339,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.23";
+$VERSION = "1.24";
 $allowEightbit = 1;
 }
 
@@ -727,11 +727,11 @@ sub check_binary {
     my ($data) = @_;
     my $len = length($data);
     if ($allowEightbit) {
-	my $count = ($data =~ tr/[\x00-\x08\x0b-\x0c\x0e-\x1a\x1c-\x1f]//); # exclude TAB, ESC, nl, cr
+	my $count = ($data =~ tr/\x00-\x08\x0b-\x0c\x0e-\x1a\x1c-\x1f//); # exclude TAB, ESC, nl, cr
         return 1 if ($len <= 0); # no contents
         return 1 if (($count/$len) > 0.1); # binary
     } else {
-	my $count = ($data =~ tr/[\x00-\x08\x0b-\x0c\x0e-\x1a\x1c-\x1f\x80-\xff]//); # exclude TAB, ESC, nl, cr
+	my $count = ($data =~ tr/\x00-\x08\x0b-\x0c\x0e-\x1a\x1c-\x1f\x80-\xff//); # exclude TAB, ESC, nl, cr
         return 1 if ($len <= 0); # no contents
         return 1 if (($count/$len) > 0.3); # binary
     }

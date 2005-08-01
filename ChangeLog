@@ -1,3 +1,10 @@
+2005-08-01  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.24.
+
+	* MMagic.pm (check_binary): Removed brackets, closes #13535.
+	  (Reported by dakkar, thank you)
+
 2005-07-29  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* MMagic.pm: Version 1.23.
