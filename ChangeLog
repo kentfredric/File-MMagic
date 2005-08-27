@@ -1,3 +1,9 @@
+2005-08-27  NOKUBI Takatsugu  <knok@daionet.gr.jp>
+
+	* Version 1.25.
+
+	* Moved Build.PL to contrib directory.
+
 2005-08-01  NOKUBI Takatsugu  <knok@daionet.gr.jp>
 
 	* Version 1.24.
