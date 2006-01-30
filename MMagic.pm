@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm,v 1.64 2005/08/27 14:59:09 knok Exp $
+# $Id: MMagic.pm 198 2006-01-30 05:24:17Z knok $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -339,7 +339,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.25";
+$VERSION = "1.26";
 $allowEightbit = 1;
 }
 
@@ -678,24 +678,26 @@ sub checktype_data {
     {
 	# in BSD's version, there's an effort to search from
 	# more specific to less, but I don't do that.
-	my ($token, %val);
+	my %val;
 	foreach my $type (keys %{$self->{SPECIALS}}) {
-	    my $token = '(' . 
-	      (join '|', sort {length($a) <=> length($b)} @{$self->{SPECIALS}->{$type}})
-		. ')';
-	    my $tdata = $data;
-	    if ($tdata =~ /$token/mg) {
-		$val{$type} = pos($tdata);
+	    my $matched_pos = undef;
+	    foreach my $token (@{$self->{SPECIALS}->{$type}}){ 
+		pos($data) = 0;
+		if ($data =~ /$token/mg) {
+		    my $tmp =  pos($data);
+		    if ((! defined $matched_pos) || ($matched_pos > $tmp)) {
+			$matched_pos = $tmp;
+		    }
+		}
 	    }
+	    $val{$type} = $matched_pos if $matched_pos;
 	}
-
 	# search latest match
 	if (%val) {
 	    my @skeys = sort { $val{$a} <=> $val{$b} } keys %val;
 	    $mtype = $skeys[0];
 	}
 	
-      ALLDONE:
 #	$mtype = 'text/plain' if (! defined $mtype);
     }
     if (! defined $mtype && check_binary($data)) {
@@ -913,11 +915,15 @@ sub magicMatchStr {
     # this item, then parse out its structure.  @$item is just the
     # raw string, line number, and subtests until we need the real info.
     # this saves time otherwise wasted parsing unused subtests.
-    $item = readMagicLine(@$item) if @$item == 3;
+    if (@$item == 3){
+	my $tmp = readMagicLine(@$item);
 
-    # $item could be undef if we ran into troubles while reading
-    # the entry.
-    return unless defined($item);
+	# $item could be undef if we ran into troubles while reading
+	# the entry.
+	return unless defined($tmp);
+
+	@$item = @$tmp;
+    }
 
     # $fh is not be defined if -c.  that way we always return
     # false for every item which allows reading/checking the entire
@@ -1378,6 +1384,57 @@ __DATA__
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
+# html:  file(1) magic for HTML (HyperText Markup Language) docs
+#
+# from Daniel Quinlan <quinlan@yggdrasil.com>
+#
+0	string		\<!DOCTYPE\ HTML	text/html
+0	string		\<!DOCTYPE\ html	text/html
+0	string		\<HEAD		text/html
+0	string		\<head		text/html
+0	string		\<TITLE		text/html
+0	string		\<title		text/html
+0       string          \<html          text/html
+0       string          \<HTML          text/html
+0	string		\<!--		text/html
+0	string		\<h1		text/html
+0	string		\<H1		text/html
+
+#------------------------------------------------------------------------------
+# mail.news:  file(1) magic for mail and news
+#
+# There are tests to ascmagic.c to cope with mail and news.
+0	string		Relay-Version: 	message/rfc822
+0	string		#!\ rnews	message/rfc822
+0	string		N#!\ rnews	message/rfc822
+0	string		Forward\ to 	message/rfc822
+0	string		Pipe\ to 	message/rfc822
+0	string		Return-Path:	message/rfc822
+0	string		Received:	message/rfc822
+0	string		Path:		message/news
+0	string		Xref:		message/news
+0	string		From:		message/rfc822
+0	string		Article 	message/news
+
+# Acrobat
+# (due to clamen@cs.cmu.edu)
+0	string		%PDF-		application/pdf
+
+# ZIP archiver
+0		string	PK				application/x-zip
+
+#------------------------------------------------------------------------------
+# msword: file(1) magic for MS Word files
+#
+# Contributor claims:
+# Reversed-engineered MS Word magic numbers
+#
+
+0	string		\376\067\0\043			application/msword
+#0	string		\320\317\021\340\241\261	application/msword
+0	string		\333\245-\0\0\0			application/msword
+
+#------------------------------------------------------------------------------
 # Java
 
 0	short		0xcafe
@@ -1531,21 +1588,6 @@ __DATA__
 0	string		\<Maker		application/x-frame
 
 #------------------------------------------------------------------------------
-# html:  file(1) magic for HTML (HyperText Markup Language) docs
-#
-# from Daniel Quinlan <quinlan@yggdrasil.com>
-#
-0	string		\<HEAD		text/html
-0	string		\<head		text/html
-0	string		\<TITLE		text/html
-0	string		\<title		text/html
-0       string          \<html          text/html
-0       string          \<HTML          text/html
-0	string		\<!--		text/html
-0	string		\<h1		text/html
-0	string		\<H1		text/html
-
-#------------------------------------------------------------------------------
 # images:  file(1) magic for image formats (see also "c-lang" for XPM bitmaps)
 #
 # originally from jef@helios.ee.lbl.gov (Jef Poskanzer),
@@ -1631,34 +1673,6 @@ __DATA__
 0	string	;ELC\023\000\000\000	application/x-elc
 
 #------------------------------------------------------------------------------
-# mail.news:  file(1) magic for mail and news
-#
-# There are tests to ascmagic.c to cope with mail and news.
-0	string		Relay-Version: 	message/rfc822
-0	string		#!\ rnews	message/rfc822
-0	string		N#!\ rnews	message/rfc822
-0	string		Forward\ to 	message/rfc822
-0	string		Pipe\ to 	message/rfc822
-0	string		Return-Path:	message/rfc822
-0	string		Received:	message/rfc822
-0	string		Path:		message/news
-0	string		Xref:		message/news
-0	string		From:		message/rfc822
-0	string		Article 	message/news
-#------------------------------------------------------------------------------
-# msword: file(1) magic for MS Word files
-#
-# Contributor claims:
-# Reversed-engineered MS Word magic numbers
-#
-
-0	string		\376\067\0\043			application/msword
-#0	string		\320\317\021\340\241\261	application/msword
-0	string		\333\245-\0\0\0			application/msword
-
-
-
-#------------------------------------------------------------------------------
 # printer:  file(1) magic for printer-formatted files
 #
 
@@ -1668,10 +1682,6 @@ __DATA__
 # EPS
 # Jason's support for EPSF <jmaggard@timesdispatch.com>
 47 string  EPSF  image/eps
-
-# Acrobat
-# (due to clamen@cs.cmu.edu)
-0	string		%PDF-		application/pdf
 
 #------------------------------------------------------------------------------
 # sc:  file(1) magic for "sc" spreadsheet
@@ -1832,9 +1842,6 @@ __DATA__
 # LHA archiver
 2		string	-lh
 >6		string	-				application/x-lha
-
-# ZIP archiver
-0		string	PK				application/x-zip
 
 # POSIX tar archives
 257		string	ustar\0			application/x-tar
