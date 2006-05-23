@@ -1,6 +1,6 @@
 # File::MMagic
 #
-# $Id: MMagic.pm 198 2006-01-30 05:24:17Z knok $
+# $Id: MMagic.pm 259 2006-05-23 05:55:32Z knok $
 #
 # This program is originated from file.kulp that is a production of The
 # Unix Reconstruction Projct.
@@ -339,7 +339,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.26";
+$VERSION = "1.27";
 $allowEightbit = 1;
 }
 
@@ -762,7 +762,10 @@ sub magicMatch {
     # this item, then parse out its structure.  @$item is just the
     # raw string, line number, and subtests until we need the real info.
     # this saves time otherwise wasted parsing unused subtests.
-    $item = readMagicLine(@$item) if @$item == 3;
+    if (@$item == 3){
+        my $tmp = readMagicLine(@$item);
+        @$item = @$tmp;
+    }
 
     # $item could be undef if we ran into troubles while reading
     # the entry.
@@ -1165,7 +1168,7 @@ sub readMagicLine {
     # or hex offset or an indirect offset specified in parenthesis
     # like (x[.[bsl]][+-][y]), or a relative offset specified by &.
     # offtype : 0 = absolute, 1 = indirect, 2 = relative
-    if ($line =~ s/^>*([&\(]?[a-flsx\.\+\-\d]+\)?)\s+(\S+)\s+//) {
+    if ($line =~ s/^>*([&\(]?[a-fA-Flsx\.\+\-\d]+\)?)\s+(\S+)\s+//) {
 	($offset,$type) = ($1,$2);
 
 	if ($offset =~ /^\(/) {
@@ -1319,7 +1322,10 @@ sub dumpMagic {
     my $entry;
     foreach $entry (@$magic) {
 	# delayed evaluation.
-	$entry = readMagicLine(@$entry) if @$entry == 3;
+        if (@$entry == 3){
+            my $tmp = readMagicLine(@$entry);
+            @$entry = @$tmp;
+        }
 
 	next if !defined($entry);
 
@@ -1863,3 +1869,4 @@ __DATA__
 0	leshort		0xea60		application/x-arj
 # RAR archiver (Greg Roelofs, newt@uchicago.edu)
 0	string		Rar!		application/x-rar
+
