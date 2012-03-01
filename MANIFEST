@@ -1,15 +1,16 @@
 ChangeLog
-MMagic.pm
-MANIFEST
+contrib/Build.PL
 COPYING
-README.ja
-README.en
 Makefile.PL
+MANIFEST			This list of files
+MMagic.pm
+README.en
+README.ja
 t/01-selfcheck.t
 t/02-extmagic.t
 t/03-typecheck.t
-t/test.html
 t/04-string-mod.t
 t/test-magic
-contrib/Build.PL
-META.yml                                 Module meta-data (added by MakeMaker)
+t/test.html
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
