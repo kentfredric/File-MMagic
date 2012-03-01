@@ -339,7 +339,7 @@ BEGIN {
 	    t => "\t",
 	    f => "\f");
 
-$VERSION = "1.27";
+$VERSION = "1.27_01";
 $allowEightbit = 1;
 }
 
@@ -1119,7 +1119,7 @@ sub readMagicEntry {
 	    $$MF[1] = $line;
 	    return length($thisDepth);
 	}
-	elsif (defined(@$entry)) {
+	elsif ( 'ARRAY' eq ref $entry && @$entry ) {
 	    # already have an entry.  this is not a continuation.
 	    # save this line for the next call and exit.
 	    $$MF[1] = $line;
